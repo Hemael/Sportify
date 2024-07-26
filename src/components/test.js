@@ -19,11 +19,9 @@ const UserComponent = ({ userId }) => {
 
     fetchUser();
   }, [userId]);
-
   if (error) {
     return <div>Erreur : {error}</div>; // Affichez le message d'erreur
   }
-
   if (!user) {
     return <div>Chargement...</div>;
   }

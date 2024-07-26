@@ -15,7 +15,7 @@ const App = () => {
 
       <div className="content" >
         <Nav/>
-        <Diagr/>
+        <Diagr userId="12"/>
         <UserComponent userId="12" />
       </div>
 

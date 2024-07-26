@@ -71,3 +71,113 @@
     color: white;
     font-size: 10px;
 }
+
+
+#groupDia{
+
+    margin-left: 80px;
+}
+
+.Hello{
+    font-size: 38px;
+    font-weight: 500;
+
+}
+.firstName{
+    color: #FF0101;
+}
+
+.consoList {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  /* Styles pour le composant ConsoItem */
+  .conso {
+    width: 258px;
+    height: 124px;
+    margin-top: 15px;
+    background-color: #FBFBFB;
+    display: flex;
+    align-items: center;
+    padding-left: 32px;
+  }
+  
+  .boiteImg {
+    height: 60px;
+    width: 60px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 6%;
+  }
+  
+  .boiteImg img {
+    display: flex;
+    align-items: center;
+    opacity: 1;
+    position: absolute;
+    max-height: 100%;
+    max-width: 100%;
+  }
+  
+  .boiteImgCalo {
+    background-color: rgba(255, 0, 0, 0.0661); 
+    height: 60px;
+    width: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .boiteImgGlu {
+    background-color: rgba(253, 204, 12, 0.0661);
+    height: 60px;
+    width: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .boiteImgLip {
+    background-color: rgba(253, 81, 129, 0.0661);
+    height: 60px;
+    width: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .boiteImgPro {
+    background-color: rgba(74, 184, 255, 0.0661);
+    height: 60px;
+    width: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .spentUser {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 0;
+  }
+  
+  .spentText {
+    font-size: 14px;
+    font-weight: 500;
+    color: #74798C;
+    margin-top: 4px;
+  }
+  
+  .spent {
+    margin-left: 24px;
+  }
+
+  .boiteImgCalo .boiteImgGlu .boiteImgLip .boiteImgPro img{
+    width: 20px;
+
+}
