@@ -29,7 +29,7 @@ const UserComponent = ({ userId }) => {
   }
 
   return (
-    <div>
+    <div className='test'>
       <h2>Utilisateur {user.id}</h2>
       <p>Nom : {user.userInfos.firstName} {user.userInfos.lastName}</p>
       <p>Âge : {user.userInfos.age}</p>

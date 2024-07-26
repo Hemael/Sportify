@@ -1,0 +1,73 @@
+.body {
+    margin: 0 auto;
+    width: 1024px;
+    height: 780px;
+    font-family: "roboto", sans-serif;
+}
+
+.test {
+    display: none;
+}
+
+#header {
+    display: flex;
+    padding-left: 10px;
+    padding-right: 91px;
+    justify-content: space-between;
+    align-items: center;
+    background-color: black;
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.content{
+    display: flex;
+}
+.logo {
+    width: auto;
+    height: 50px;
+    margin: 18px;
+    margin-bottom: 10px;
+}
+
+#nav {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: -50px;
+}
+
+.navGroup {
+    display: flex;
+    width: 100px;
+    height: 700px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    justify-content: space-around;
+    background-color: black;
+}
+
+.navSport {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 64px;
+    width: 64px;
+    background-color: white;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.navGroup p {
+    writing-mode: vertical-rl; /* Mode d'écriture vertical, de droite à gauche */
+    transform: rotate(180deg);
+    color: white;
+    font-size: 10px;
+}
+
+.copyright {
+    margin-bottom: -70px;
+    color: white;
+    font-size: 10px;
+}
