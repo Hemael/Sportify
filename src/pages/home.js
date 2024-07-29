@@ -1,6 +1,5 @@
 import "./main.css";
 import React from 'react';
-import UserComponent from '../components/test.js';
 import Header from '../components/header.js';
 import Nav from '../components/nav.js';
 import Diagr from '../components/diagramm.js';
@@ -15,8 +14,8 @@ const App = () => {
 
       <div className="content" >
         <Nav/>
-        <Diagr userId="12"/>
-        <UserComponent userId="12" />
+        <Diagr/>
+        {/*<UserComponent userId="12" />*/}
       </div>
 
     </div>

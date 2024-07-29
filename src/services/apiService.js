@@ -1,53 +1,76 @@
-const fetchMockData = async () => {
-  const response = await fetch('./mockData.json');
-  if (!response.ok) {
-    throw new Error('Failed to fetch mock data');
+import mockData from "./mockData.json"
+
+class ApiService  {
+  getMockUser(){
+    return mockData.users.find(user => parseInt(user.id )=== parseInt(process.env.REACT_APP_USER_ID))
   }
-  return await response.json();
-};
 
-const apiService = {
-  data: null,
+  constructor() {
+    this.baseUrl= `${process.env.REACT_APP_API_URL_DEV}user/${process.env.REACT_APP_USER_ID}`
+    this.mockUser = this.getMockUser()
+  }
+  
 
-  async init() {
-    this.data = await fetchMockData();
-  },
-
-  async getUserData(userId) {
-    if (!this.data) {
-      await this.init();
+  async getUserData() {
+    if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
+      const response = await fetch(`${this.baseUrl}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        }
+        const result = await response.json();
+        return result.data;
+        
     }
-    const user = this.data.users.find(user => user.id === userId);
-    if (!user) throw new Error('User not found for user data');
-    return user;
-  },
+    else{
+      return this.mockUser;
+    }
+  }
 
   async getUserActivity(userId) {
-    if (!this.data) {
-      await this.init();
+    if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
+      const response = await fetch(`${this.baseUrl}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data activity');
+        }
+        const result = await response.json();
+        return result.data.activity;
+    
     }
-    const user = this.data.users.find(user => user.id === userId);
-    if (!user) throw new Error('User not found for activity');
-    return user.activity;
-  },
+    else{
+      return this.mockUser.activity;
+    }
+  }
 
   async getUserAverageSessions(userId) {
-    if (!this.data) {
-      await this.init();
+    if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
+      const response = await fetch(`${this.baseUrl}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data Average sessions');
+        }
+        const result = await response.json();
+        return result.data.averageSessions;
+    
     }
-    const user = this.data.users.find(user => user.id === userId);
-    if (!user) throw new Error('User not found for average sessions');
-    return user.averageSessions;
-  },
+    else{
+      return this.mockUser.averageSessions;
+    }
+  }
 
   async getUserPerformance(userId) {
-    if (!this.data) {
-      await this.init();
+    if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
+      const response = await fetch(`${this.baseUrl}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data performance');
+        }
+        const result = await response.json();
+        return result.data.performance;
+    
     }
-    const user = this.data.users.find(user => user.id === userId);
-    if (!user) throw new Error('User not found for performance');
-    return user.performance;
-  },
+    else{
+      return this.mockUser.performance;
+    }
+  }
+
 };
 
-export default apiService;
+export default ApiService;

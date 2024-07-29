@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import apiService from '../services/apiService';
+import ApiService from '../services/apiService';
 import ConsoItem from '../components/consoItem.js'; 
-
-
 
 import energy from '../data/energy.svg';
 import apple from '../data/apple.svg';
 import cheesburger from '../data/cheeseburger.svg';
 import chicken from '../data/chicken.svg';
 
-const Diagr = ({ userId }) => {
+const Diagr = () => {
     const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
-  
+
     useEffect(() => {
+      const apiService = new ApiService();
       const fetchUser = async () => {
         try {
           // Assurez-vous que userId est un nombre
-          const userData = await apiService.getUserData(parseInt(userId, 10));
+          const userData = await apiService.getUserData();
+          console.log(userData)
           setUser(userData);
           setError(null); // Effacez les erreurs précédentes
         } catch (error) {
@@ -26,7 +26,7 @@ const Diagr = ({ userId }) => {
       };
   
       fetchUser();
-    }, [userId]);
+    }, []);
     if (error) {
       return <div>Erreur : {error}</div>; // Affichez le message d'erreur
     }
