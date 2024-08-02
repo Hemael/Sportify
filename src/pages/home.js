@@ -7,6 +7,7 @@ import Diagr from '../components/diagramm.js';
 
 
 
+
 const App = () => {
   return (
     <div className="body">
@@ -15,7 +16,7 @@ const App = () => {
       <div className="content" >
         <Nav/>
         <Diagr/>
-        {/*<UserComponent userId="12" />*/}
+
       </div>
 
     </div>

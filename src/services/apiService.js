@@ -6,7 +6,7 @@ class ApiService  {
   }
 
   constructor() {
-    this.baseUrl= `${process.env.REACT_APP_API_URL_DEV}user/${process.env.REACT_APP_USER_ID}`
+    this.baseUrl = `${process.env.REACT_APP_API_URL_DEV}user/${process.env.REACT_APP_USER_ID}`
     this.mockUser = this.getMockUser()
   }
   
@@ -18,55 +18,65 @@ class ApiService  {
           throw new Error('Failed to fetch user data');
         }
         const result = await response.json();
+        console.log("UserData:", result.data);
         return result.data;
         
     }
     else{
+      console.log("MockUserData:", this.mockUser);
       return this.mockUser;
     }
   }
 
-  async getUserActivity(userId) {
+  async getUserActivity() {
     if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
-      const response = await fetch(`${this.baseUrl}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch user data activity');
-        }
-        const result = await response.json();
-        return result.data.activity;
-    
+      const url = `${this.baseUrl}/activity`;
+      console.log("Fetching activity from:", url);
+      const response = await fetch(url);
+      console.log("Response status:", response.status);
+      if (!response.ok) {
+        throw new Error('Failed to fetch user data activity');
+      }
+      const result = await response.json();
+      console.log("UserActivity:", result);
+      return result;
     }
     else{
+      console.log("MockUserActivity:", this.mockUser.activity);
       return this.mockUser.activity;
     }
   }
 
-  async getUserAverageSessions(userId) {
+  async getUserAverageSessions() {
     if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
-      const response = await fetch(`${this.baseUrl}`);
+      const response = await fetch(`${this.baseUrl}/average-sessions`);
         if (!response.ok) {
           throw new Error('Failed to fetch user data Average sessions');
         }
         const result = await response.json();
-        return result.data.averageSessions;
+        console.log("UserAverageSessions:", result);
+        return result;
     
     }
     else{
+      console.log("MockUserAverageSessions:", this.mockUser.averageSessions);
       return this.mockUser.averageSessions;
     }
   }
 
-  async getUserPerformance(userId) {
+  async getUserPerformance() {
     if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
-      const response = await fetch(`${this.baseUrl}`);
+      const response = await fetch(`${this.baseUrl}/performance`);
         if (!response.ok) {
           throw new Error('Failed to fetch user data performance');
         }
         const result = await response.json();
-        return result.data.performance;
+        console.log("UserPerformance:", result);
+        return result;
     
     }
     else{
+      console.log("MockUserPerformance:", this.mockUser.performance);
       return this.mockUser.performance;
     }
   }

@@ -1,6 +1,6 @@
 .body {
     margin: 0 auto;
-    width: 1024px;
+    width: 1224px;
     height: 780px;
     font-family: "roboto", sans-serif;
 }
@@ -74,7 +74,8 @@
 
 
 #groupDia{
-
+  display: flex;
+  flex-direction: column;
     margin-left: 80px;
 }
 
@@ -91,7 +92,6 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    margin-top: 20px;
   }
   
   /* Styles pour le composant ConsoItem */
@@ -181,3 +181,68 @@
     width: 20px;
 
 }
+
+.diagram{
+  display: flex;
+  
+}
+
+.diagrPerf {
+  background-color:#282D30 ;
+  margin-top: 20px;
+  padding: 10px;
+  font-size: 12px;
+  width: 220px;
+  height: 220px;
+  border-radius: 5px;
+
+}
+
+.donutChart{
+  background-color: #FBFBFB;
+  width: 220px;
+  height: 220px;
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  margin-left: 10px;
+
+}
+
+.donutChart .textBlack{
+  fill: black ;
+}
+
+.donutChart .textGrey{
+  fill: #74798C ;
+}
+
+.recharts-text {
+  fill: white ;
+
+}
+
+.scoreText{
+  margin: 0;
+  margin-top: 10px;
+  margin-left: 15px;
+  margin-bottom: -15px;
+}
+
+.white{
+  fill: white;
+}
+
+
+.other{
+  background-color: #FF0101;
+  width: 220px;
+  height: 220px;
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+
+
