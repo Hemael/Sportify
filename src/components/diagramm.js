@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, PieChart, Pie, Cell, Label } from 'recharts';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, PieChart, Pie, Cell, Label, LineChart, Line, XAxis, Tooltip } from 'recharts';
 import ApiService from '../services/apiService';
 import ConsoItem from '../components/consoItem.js';
 
@@ -31,9 +31,21 @@ const translateKind = (kind, language = 'en') => {
   return translations[language][kind];
 };
 
+const renderTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="custom-tooltip">
+        <p className="label">{`${payload[0].value} min`}</p>
+      </div>
+    );
+  }
+  return null;
+};
+
 const Diagr = () => {
   const [user, setUser] = useState(null);
   const [performance, setPerformance] = useState(null);
+  const [averageSessions, setAverageSessions] = useState(null);
   const [error, setError] = useState(null);
 
   const isProd = process.env.REACT_APP_ENVIRONNEMENT === 'prod';
@@ -45,6 +57,7 @@ const Diagr = () => {
       try {
         const userData = await apiService.getUserData();
         const userPerformance = await apiService.getUserPerformance();
+        const userAverageSessions = await apiService.getUserAverageSessions();
 
         if (isProd) {
           const kindMap = userPerformance.data.kind;
@@ -54,6 +67,7 @@ const Diagr = () => {
           }));
           setUser(userData);
           setPerformance(performanceData.reverse()); // Inverse l'ordre des données
+          setAverageSessions(userAverageSessions.data.sessions);
         } else {
           const kindMap = userPerformance.kind;
           const performanceData = userPerformance.data.map(item => ({
@@ -62,6 +76,7 @@ const Diagr = () => {
           }));
           setUser(userData);
           setPerformance(performanceData.reverse()); // Inverse l'ordre des données
+          setAverageSessions(userAverageSessions);
         }
         setError(null);
       } catch (error) {
@@ -75,12 +90,15 @@ const Diagr = () => {
   if (error) {
     return <div>Erreur : {error}</div>;
   }
-  if (!user || !performance) {
+  if (!user || !performance || !averageSessions) {
     return <div>Chargement...</div>;
   }
 
   const { calorieCount, proteinCount, carbohydrateCount, lipidCount } = user.keyData;
-  const scorePercentage = user.todayScore * 100;
+  const scorePercentage = (user.todayScore || user.score) * 100;
+  const days = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+  const sessionsData = averageSessions.map((session) => ({...session, day: days[session.day - 1]}));
+
 
   return (
     <div id="groupDia">
@@ -91,67 +109,72 @@ const Diagr = () => {
 
       <div className='diagram'>
 
-      <div className='other'>
-      </div>
-
-        <div className='diagrPerf'>
-          <ResponsiveContainer width="100%" height="100%">
-            <RadarChart data={performance} cx="50%" cy="50%" outerRadius="70%">
-              <PolarGrid gridType="polygon" radialLines={false} />
-              <PolarAngleAxis dataKey="kind" tick={{ fill: 'white', fontSize: 10.5 }} tickSize={13} />
-              <Radar name="Performance" dataKey="value" stroke="none" fill="#ff0101" fillOpacity={0.7} />
-            </RadarChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className='donutChart'>
-
-          <p className='scoreText'>Score</p>
-          <PieChart width={210} height={210}>
-
-            <Pie
-              data={[
-                { name: 'Score', value: scorePercentage },
-                { name: 'Remaining', value: 100 - scorePercentage }
-              ]}
-              startAngle={90} // Commence par le haut
-              endAngle={450} 
-              innerRadius="70%"
-              outerRadius="80%"
-              dataKey="value"
-              labelLine={false}
-              stroke="none"
-              cornerRadius={5}>
-
-              <Label
-                value={`${scorePercentage}%`}
-                fontSize={24}
-                fontWeight="bold"
-                className="textBlack"
-                position="center"
-                dy={-10}
-              />
-
-              <Label
-                value="de votre"
-                fontSize={16}
-                className="textGrey"
-                position="center"
-                dy={10} // ajustez la valeur pour décaler le label vers le bas
-              />
-
-              <Label
-                value="objectif"
-                fontSize={16}
-                className="textGrey"
-                position="center"
-                dy={30} // ajustez la valeur pour décaler le label vers le bas
-              />
-              <Cell fill="#ff0101" />
-              <Cell fill="#FBFBFB" />
-            </Pie>
-
-          </PieChart>
+        <div className='diagrCenter'>
+          <div className='other'>
+          </div>
+          <div className='cubeDiagr'>
+            <div className='lineChart'>
+              <p className='timeSession'>Durée moyenne des <br/>sessions</p>
+              <LineChart className="lineSize" data={sessionsData} width={220} height={200} >
+                <XAxis dataKey="day"tick={{fill: 'white', fontSize: 12.5, tickSize: 13}} tickLine={false} axisLine={false} tickMargin={5} />
+                <Tooltip content={renderTooltip} />
+                <Line type="monotone" dataKey="sessionLength" stroke="white" dot={false} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" activeDot={{ r: 4, fill: 'white', stroke: 'white', strokeOpacity: 0.5, strokeWidth: 5}} />
+              </LineChart>
+            </div>
+            <div className='diagrPerf'>
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart data={performance} cx="50%" cy="50%" outerRadius="70%">
+                  <PolarGrid gridType="polygon" radialLines={false} />
+                  <PolarAngleAxis dataKey="kind" tick={{ fill: 'white', fontSize: 10.5 }} tickSize={13} />
+                  <Radar name="Performance" dataKey="value" stroke="none" fill="#ff0101" fillOpacity={0.7} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className='donutChart'>
+              <p className='scoreText'>Score</p>
+              <PieChart width={210} height={210}>
+                <Pie
+                  data={[
+                    { name: 'Score', value: scorePercentage },
+                    { name: 'Remaining', value: 100 - scorePercentage }
+                  ]}
+                  startAngle={90} // Commence par le haut
+                  endAngle={450}
+                  innerRadius="70%"
+                  outerRadius="80%"
+                  dataKey="value"
+                  labelLine={false}
+                  stroke="none"
+                  cornerRadius={5}
+                >
+                  <Label
+                    value={`${scorePercentage}%`}
+                    fontSize={24}
+                    fontWeight="bold"
+                    className="textBlack"
+                    position="center"
+                    dy={-10}
+                  />
+                  <Label
+                    value="de votre"
+                    fontSize={16}
+                    className="textGrey"
+                    position="center"
+                    dy={10} // ajustez la valeur pour décaler le label vers le bas
+                  />
+                  <Label
+                    value="objectif"
+                    fontSize={16}
+                    className="textGrey"
+                    position="center"
+                    dy={30}
+                  />
+                  <Cell fill="#ff0101" />
+                  <Cell fill="#FBFBFB" />
+                </Pie>
+              </PieChart>
+            </div>
+          </div>
         </div>
 
         <div className='consoList'>
@@ -160,7 +183,7 @@ const Diagr = () => {
           <ConsoItem image={apple} value={`${carbohydrateCount}g`} label="Glucides" className="boiteImgGlu" />
           <ConsoItem image={cheesburger} value={`${lipidCount}g`} label="Lipides" className="boiteImgLip" />
         </div>
-
+        
       </div>
     </div>
   );

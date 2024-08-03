@@ -94,11 +94,9 @@
     justify-content: space-between;
   }
   
-  /* Styles pour le composant ConsoItem */
   .conso {
     width: 258px;
     height: 124px;
-    margin-top: 15px;
     background-color: #FBFBFB;
     display: flex;
     align-items: center;
@@ -186,26 +184,17 @@
   display: flex;
   
 }
+.cubeDiagr{
+  display: flex;
+}
 
 .diagrPerf {
   background-color:#282D30 ;
-  margin-top: 20px;
   padding: 10px;
   font-size: 12px;
   width: 220px;
   height: 220px;
   border-radius: 5px;
-
-}
-
-.donutChart{
-  background-color: #FBFBFB;
-  width: 220px;
-  height: 220px;
-  margin-top: 20px;
-  padding: 10px;
-  border-radius: 5px;
-  margin-left: 10px;
 
 }
 
@@ -234,15 +223,54 @@
 }
 
 
-.other{
+.lineSize{
+  margin-top: -40px;
+}
+
+.custom-tooltip{
+  display: flex;
+  font-size: 8px;
+  height: 30px;
+  width: 39px;
+  background-color: white;
+  align-items: center;
+  justify-content: center;
+}
+
+.timeSession{
+  opacity: 0.7;
+  color: white;
+  margin-left: 20px;
+}
+
+
+.donutChart{
+  background-color: #FBFBFB;
+  width: 220px;
+  height: 220px;
+  padding: 10px;
+  border-radius: 5px;
+  margin-left: 10px;
+  margin-right: 10px;
+
+}
+
+.lineChart{
   background-color: #FF0101;
   width: 220px;
   height: 220px;
-  margin-top: 20px;
   padding: 10px;
   border-radius: 5px;
   margin-right: 10px;
 }
 
+.other{
+  padding-top: 10px;
+  height: 280px;
+  width: 740px;
+  background-color: #FBFBFB;
+} 
 
-
+.cubeDiagr{
+  margin-top: 10px;
+}
