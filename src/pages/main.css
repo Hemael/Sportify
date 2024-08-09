@@ -264,7 +264,7 @@
   margin-right: 10px;
 }
 
-.other{
+.actifLine{
   padding-top: 10px;
   height: 280px;
   width: 740px;
@@ -273,4 +273,61 @@
 
 .cubeDiagr{
   margin-top: 10px;
+}
+
+.actifLine .recharts-wrapper{
+  margin-top: -40px;
+  margin-left: -30px;
+}
+
+.recharts-legend-wrapper {
+  right: 50px;
+}
+
+.textLine{
+  display: flex;
+  justify-content: space-between;
+  margin-right: 130px;
+  margin-left: 20px;
+  color: black;
+  font-size: 15px;
+  
+  
+}
+
+.expli{
+  display: flex;
+  color: #74798C;
+  font-size: 14px;
+}
+
+.circleN, .circleR{
+  height: 8px;
+  width: 8px;
+  margin-left: 5px;
+  margin-right: 10px;
+  border-radius: 8px;
+}
+
+.circleN{
+  background-color: black;
+}
+.circleR{
+  background-color: #FF0101;
+}
+
+.boiteExpli{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-left: 20px;
+}
+
+.actifLine .recharts-wrapper .recharts-text{
+  fill: #9B9EAC;
+}
+
+.actifLine .recharts-tooltip-cursor{
+  fill: #C4C4C4;
+  opacity: 50%;
 }

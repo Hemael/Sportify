@@ -18,12 +18,10 @@ class ApiService  {
           throw new Error('Failed to fetch user data');
         }
         const result = await response.json();
-        console.log("UserData:", result.data);
         return result.data;
         
     }
     else{
-      console.log("MockUserData:", this.mockUser);
       return this.mockUser;
     }
   }
@@ -31,18 +29,14 @@ class ApiService  {
   async getUserActivity() {
     if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
       const url = `${this.baseUrl}/activity`;
-      console.log("Fetching activity from:", url);
       const response = await fetch(url);
-      console.log("Response status:", response.status);
       if (!response.ok) {
         throw new Error('Failed to fetch user data activity');
       }
       const result = await response.json();
-      console.log("UserActivity:", result);
       return result;
     }
     else{
-      console.log("MockUserActivity:", this.mockUser.activity);
       return this.mockUser.activity;
     }
   }
@@ -54,12 +48,9 @@ class ApiService  {
           throw new Error('Failed to fetch user data Average sessions');
         }
         const result = await response.json();
-        console.log("UserAverageSessions:", result);
         return result;
-    
     }
     else{
-      console.log("MockUserAverageSessions:", this.mockUser.averageSessions);
       return this.mockUser.averageSessions;
     }
   }
@@ -71,12 +62,9 @@ class ApiService  {
           throw new Error('Failed to fetch user data performance');
         }
         const result = await response.json();
-        console.log("UserPerformance:", result);
         return result;
-    
     }
     else{
-      console.log("MockUserPerformance:", this.mockUser.performance);
       return this.mockUser.performance;
     }
   }
