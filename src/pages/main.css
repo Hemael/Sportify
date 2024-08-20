@@ -1,8 +1,9 @@
-.body {
-    margin: 0 auto;
-    width: 1224px;
+body {
+
+    width: 1024px;
     height: 780px;
     font-family: "roboto", sans-serif;
+    margin: 0;
 }
 
 .test {
@@ -76,11 +77,11 @@
 #groupDia{
   display: flex;
   flex-direction: column;
-    margin-left: 80px;
+    margin-left: 30px;
 }
 
 .Hello{
-    font-size: 38px;
+    font-size: 28px;
     font-weight: 500;
 
 }
@@ -95,8 +96,8 @@
   }
   
   .conso {
-    width: 258px;
-    height: 124px;
+    width: 228px;
+    height: 118px;
     background-color: #FBFBFB;
     display: flex;
     align-items: center;
@@ -192,8 +193,8 @@
   background-color:#282D30 ;
   padding: 10px;
   font-size: 12px;
-  width: 220px;
-  height: 220px;
+  width: 180px;
+  height: 180px;
   border-radius: 5px;
 
 }
@@ -223,9 +224,7 @@
 }
 
 
-.lineSize{
-  margin-top: -40px;
-}
+
 
 .custom-tooltip{
   display: flex;
@@ -240,14 +239,16 @@
 .timeSession{
   opacity: 0.7;
   color: white;
-  margin-left: 20px;
+  margin-left: 10px;
+  margin-top: 10px;
+  margin-bottom: -48px;
 }
 
 
 .donutChart{
   background-color: #FBFBFB;
-  width: 220px;
-  height: 220px;
+  width: 180px;
+  height: 180px;
   padding: 10px;
   border-radius: 5px;
   margin-left: 10px;
@@ -257,9 +258,8 @@
 
 .lineChart{
   background-color: #FF0101;
-  width: 220px;
-  height: 220px;
-  padding: 10px;
+  width: 200px;
+  height: 200px;
   border-radius: 5px;
   margin-right: 10px;
 }
@@ -267,7 +267,7 @@
 .actifLine{
   padding-top: 10px;
   height: 280px;
-  width: 740px;
+  width: 620px;
   background-color: #FBFBFB;
 } 
 
@@ -290,7 +290,7 @@
   margin-right: 130px;
   margin-left: 20px;
   color: black;
-  font-size: 15px;
+  font-size: 13px;
   
   
 }
@@ -298,7 +298,7 @@
 .expli{
   display: flex;
   color: #74798C;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .circleN, .circleR{
@@ -327,7 +327,19 @@
   fill: #9B9EAC;
 }
 
+.recharts-wrapper .lineSize{
+  width: 210px;
+  height: 210px;
+  margin: -10px;
+  margin-top: -15px;
+  margin-left: -15px;
+}
+
 .actifLine .recharts-tooltip-cursor{
   fill: #C4C4C4;
   opacity: 50%;
+}
+
+.textPeople{
+  margin-bottom: 20px;
 }

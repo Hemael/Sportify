@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, PieChart, Pie, Cell, Label, LineChart, Line, XAxis, Tooltip, BarChart, Bar, CartesianGrid, YAxis } from 'recharts';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, PieChart, Pie, Cell, Label, LineChart, Line, XAxis, Tooltip, BarChart, Bar, CartesianGrid, YAxis} from 'recharts';
 import ApiService from '../services/apiService';
-import ConsoItem from '../components/consoItem.js';
+import ConsoItem from '../components/consoItem';
 
 import energy from '../data/energy.svg';
 import apple from '../data/apple.svg';
 import cheesburger from '../data/cheeseburger.svg';
 import chicken from '../data/chicken.svg';
+import { CustomCursor, LineTooltip, renderTooltip } from './customCursorTooltip';
+
 
 const translateKind = (kind, language = 'en') => {
   const translations = {
@@ -16,7 +18,7 @@ const translateKind = (kind, language = 'en') => {
       endurance: 'Endurance',
       strength: 'Strength',
       speed: 'Speed',
-      intensity: 'Intensity'
+      intensity: 'Intensity',
     },
     fr: {
       cardio: 'Cardio',
@@ -24,43 +26,19 @@ const translateKind = (kind, language = 'en') => {
       endurance: 'Endurance',
       strength: 'Force',
       speed: 'Vitesse',
-      intensity: 'Intensité'
-    }
+      intensity: 'Intensité',
+    },
   };
 
   return translations[language][kind];
-};
-
-const renderTooltip = ({ active, payload }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="custom-tooltip">
-        <p className="label">{`${payload[0].value} min`}</p>
-      </div>
-    );
-  }
-  return null;
-};
-
-const LineTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div style={{ backgroundColor: 'red', padding: '5px', color: 'white', height:'63', width:'39',fontSize:'7px' }}>
-        <p>{payload[0].value} kg</p>
-        <p>{payload[1].value} Kcal</p>
-      </div>
-    );
-  }
-
-  return null;
 };
 
 const Diagr = () => {
   const [user, setUser] = useState(null);
   const [performance, setPerformance] = useState(null);
   const [averageSessions, setAverageSessions] = useState(null);
+  const [activityData, setActivityData] = useState([]);
   const [error, setError] = useState(null);
-  const [activityData, setActivityData] = useState([]); // Ajouté pour stocker les données d'activité
 
   const isProd = process.env.REACT_APP_ENVIRONNEMENT === 'prod';
 
@@ -72,13 +50,13 @@ const Diagr = () => {
         const userData = await apiService.getUserData();
         const userPerformance = await apiService.getUserPerformance();
         const userAverageSessions = await apiService.getUserAverageSessions();
-        const userActivityData = await apiService.getUserActivity(); // Ajouté pour récupérer les données d'activité
+        const userActivityData = await apiService.getUserActivity();
 
         if (isProd) {
           const kindMap = userPerformance.data.kind;
-          const performanceData = userPerformance.data.data.map(item => ({
+          const performanceData = userPerformance.data.data.map((item) => ({
             value: item.value,
-            kind: translateKind(kindMap[item.kind], 'fr') // Change 'fr' to 'en' for English
+            kind: translateKind(kindMap[item.kind], 'fr'), // Change 'fr' to 'en' for English
           }));
           setUser(userData);
           setPerformance(performanceData.reverse()); // Inverse l'ordre des données
@@ -86,9 +64,9 @@ const Diagr = () => {
           setActivityData(userActivityData.data); // Ajouté pour stocker les données d'activité
         } else {
           const kindMap = userPerformance.kind;
-          const performanceData = userPerformance.data.map(item => ({
+          const performanceData = userPerformance.data.map((item) => ({
             value: item.value,
-            kind: translateKind(kindMap[item.kind], 'fr') // Change 'fr' to 'en' for English
+            kind: translateKind(kindMap[item.kind], 'fr'), // Change 'fr' to 'en' for English
           }));
           setUser(userData);
           setPerformance(performanceData.reverse()); // Inverse l'ordre des données
@@ -114,14 +92,14 @@ const Diagr = () => {
   const { calorieCount, proteinCount, carbohydrateCount, lipidCount } = user.keyData;
   const scorePercentage = (user.todayScore || user.score) * 100;
   const days = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-  const sessionsData = averageSessions.map((session) => ({...session, day: days[session.day - 1]}));
+  const sessionsData = averageSessions.map((session) => ({ ...session, day: days[session.day - 1] }));
   const activityDataWithDayNumbers = activityData.map((data, index) => ({ ...data, day: index + 1 }));
   
 
 
   return (
     <div id="groupDia">
-      <div>
+      <div className='textPeople'>
         <p className='Hello'>Bonjour <span className="firstName">{user.userInfos.firstName}</span></p>
         <p>Félicitations ! Vous avez explosé vos objectifs hier 👏</p>
       </div>
@@ -130,17 +108,16 @@ const Diagr = () => {
 
         <div className='diagrCenter'>
 
-
           <div className='actifLine'>
             <div className='textLine'>
-                <p className='actiText'> Activité quotidienne</p>
-                <div className='expli'>
-                  <div className='boiteExpli'><div className='circleN'></div><p>Poids (kg)</p></div>
-                  <div className='boiteExpli'><div className='circleR'></div><p>Calories brûlées (kCal)</p></div>
-                </div>
+              <p className='actiText'> Activité quotidienne</p>
+              <div className='expli'>
+                <div className='boiteExpli'><div className='circleN'></div><p>Poids (kg)</p></div>
+                <div className='boiteExpli'><div className='circleR'></div><p>Calories brûlées (kCal)</p></div>
+              </div>
             </div>
 
-            <BarChart height={250} width={800} barGap={-35} data={activityDataWithDayNumbers} margin={{top: 40,right: 30,left: 0,bottom: -10,}}>
+            <BarChart height={250} width={680} barGap={-15} data={activityDataWithDayNumbers} margin={{top: 40,right: 30,left: 0,bottom: -10,}}>
             <Tooltip content={<LineTooltip />} fill='red' />
               <CartesianGrid horizontal={true} vertical={false} strokeDasharray="3 3" stroke="grey" />
               <XAxis dataKey="day" axisLine={false} tick={{ stroke: 'none', strokeDasharray: 'none' }}  tickLine={{ stroke: 'none' }}/> 
@@ -149,73 +126,78 @@ const Diagr = () => {
               <Bar yAxisId="left" dataKey="kilogram" fill="black" radius={[20, 20, 0, 0]} maxBarSize={10} />
               <Bar yAxisId="right" dataKey="calories" fill="#FF0101" radius={[20, 20, 0, 0]} maxBarSize={10} />
             </BarChart>
+
           </div>
 
+          <div className='cubeDiagr'>
 
+            <div className='lineChart'>
+              <p className='timeSession'>Durée moyenne des <br/>sessions</p>
+              <LineChart className="lineSize" data={sessionsData} width={200} height={200}   margin={{ top: 20, right: 5, bottom: 10, left: -55 }}  >
+                <XAxis dataKey="day"tick={{fill: 'white', fontSize: 12.5, tickSize: 13}} tickLine={false} axisLine={false} tickMargin={15} />
+                <YAxis domain={[0, 80]} tick={false} axisLine={false} />
+                <Tooltip content={renderTooltip} cursor={<CustomCursor />} />
+                <Line type="monotone" dataKey="sessionLength" stroke="white" dot={false} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" activeDot={{ r: 4, fill: 'white', stroke: 'white', strokeOpacity: 0.5, strokeWidth: 5}} />
+              </LineChart>
+            </div>
 
-        <div className='cubeDiagr'>
-          <div className='lineChart'>
-            <p className='timeSession'>Durée moyenne des <br/>sessions</p>
-            <LineChart className="lineSize" data={sessionsData} width={220} height={200} >
-              <XAxis dataKey="day"tick={{fill: 'white', fontSize: 12.5, tickSize: 13}} tickLine={false} axisLine={false} tickMargin={5} />
-              <Tooltip content={renderTooltip} />
-              <Line type="monotone" dataKey="sessionLength" stroke="white" dot={false} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" activeDot={{ r: 4, fill: 'white', stroke: 'white', strokeOpacity: 0.5, strokeWidth: 5}} />
-            </LineChart>
+            <div className='diagrPerf'>
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart data={performance} cx="50%" cy="50%" outerRadius="60%">
+                  <PolarGrid gridType="polygon" radialLines={false} />
+                  <PolarAngleAxis dataKey="kind" tick={{ fill: 'white', fontSize: 10.5 }} tickSize={13} />
+                  <Radar name="Performance" dataKey="value" stroke="none" fill="#ff0101" fillOpacity={0.7} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className='donutChart'>
+              <p className='scoreText'>Score</p>
+              <PieChart width={180} height={180}>
+                <Pie
+                  data={[
+                    { name: 'Score', value: scorePercentage },
+                    { name: 'Remaining', value: 100 - scorePercentage }
+                  ]}
+                  startAngle={90} // Commence par le haut
+                  endAngle={450}
+                  innerRadius="70%"
+                  outerRadius="80%"
+                  dataKey="value"
+                  labelLine={false}
+                  stroke="none"
+                  cornerRadius={5}
+                >
+                  <Label
+                    value={`${scorePercentage}%`}
+                    fontSize={24}
+                    fontWeight="bold"
+                    className="textBlack"
+                    position="center"
+                    dy={-10}
+                  />
+                  <Label
+                    value="de votre"
+                    fontSize={16}
+                    className="textGrey"
+                    position="center"
+                    dy={10} // ajustez la valeur pour décaler le label vers le bas
+                  />
+                  <Label
+                    value="objectif"
+                    fontSize={16}
+                    className="textGrey"
+                    position="center"
+                    dy={30}
+                  />
+                  <Cell fill="#ff0101" />
+                  <Cell fill="#FBFBFB" />
+                </Pie>
+              </PieChart>
+            </div>
+
           </div>
-          <div className='diagrPerf'>
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={performance} cx="50%" cy="50%" outerRadius="70%">
-                <PolarGrid gridType="polygon" radialLines={false} />
-                <PolarAngleAxis dataKey="kind" tick={{ fill: 'white', fontSize: 10.5 }} tickSize={13} />
-                <Radar name="Performance" dataKey="value" stroke="none" fill="#ff0101" fillOpacity={0.7} />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className='donutChart'>
-            <p className='scoreText'>Score</p>
-            <PieChart width={210} height={210}>
-              <Pie
-                data={[
-                  { name: 'Score', value: scorePercentage },
-                  { name: 'Remaining', value: 100 - scorePercentage }
-                ]}
-                startAngle={90} // Commence par le haut
-                endAngle={450}
-                innerRadius="70%"
-                outerRadius="80%"
-                dataKey="value"
-                labelLine={false}
-                stroke="none"
-                cornerRadius={5}
-              >
-                <Label
-                  value={`${scorePercentage}%`}
-                  fontSize={24}
-                  fontWeight="bold"
-                  className="textBlack"
-                  position="center"
-                  dy={-10}
-                />
-                <Label
-                  value="de votre"
-                  fontSize={16}
-                  className="textGrey"
-                  position="center"
-                  dy={10} // ajustez la valeur pour décaler le label vers le bas
-                />
-                <Label
-                  value="objectif"
-                  fontSize={16}
-                  className="textGrey"
-                  position="center"
-                  dy={30}
-                />
-                <Cell fill="#ff0101" />
-                <Cell fill="#FBFBFB" />
-              </Pie>
-            </PieChart>
-          </div>
-        </div>
+
         </div>
 
         <div className='consoList'>
