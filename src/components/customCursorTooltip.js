@@ -1,6 +1,7 @@
 
 import { Layer } from 'recharts';
 
+// creation du rectangle de la durée moyenne de session
 const CustomCursor = (props) => {
   const { points } = props;
   const { x } = points[0];
@@ -25,9 +26,8 @@ const CustomCursor = (props) => {
   );
 };
 
-export default CustomCursor;
 
-
+// Création des tooltips personnalisés
 const renderTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
@@ -38,7 +38,6 @@ const renderTooltip = ({ active, payload }) => {
   }
   return null;
 };
-
 const LineTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (

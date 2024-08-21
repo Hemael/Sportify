@@ -10,8 +10,16 @@ class ApiService  {
     this.mockUser = this.getMockUser()
   }
   
+  /**
+ * Fetches user data based on the environment and user ID.
+ * If the environment is 'prod', it fetches data from the API.
+ * If the environment is not 'prod', it returns mock data.
+ *
+ * @returns {Object} - The user data object.
+ * @throws {Error} - Throws an error if the fetch operation fails.
+ */
 
-  async getUserData() {
+async getUserData() {
     if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
       const response = await fetch(`${this.baseUrl}`);
         if (!response.ok) {

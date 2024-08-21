@@ -2,46 +2,30 @@ import React, { useEffect, useState } from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, PieChart, Pie, Cell, Label, LineChart, Line, XAxis, Tooltip, BarChart, Bar, CartesianGrid, YAxis} from 'recharts';
 import ApiService from '../services/apiService';
 import ConsoItem from '../components/consoItem';
+import { CustomCursor, LineTooltip, renderTooltip } from './customCursorTooltip';
+import translateKind from './translate'
 
 import energy from '../data/energy.svg';
 import apple from '../data/apple.svg';
 import cheesburger from '../data/cheeseburger.svg';
 import chicken from '../data/chicken.svg';
-import { CustomCursor, LineTooltip, renderTooltip } from './customCursorTooltip';
 
 
-const translateKind = (kind, language = 'en') => {
-  const translations = {
-    en: {
-      cardio: 'Cardio',
-      energy: 'Energy',
-      endurance: 'Endurance',
-      strength: 'Strength',
-      speed: 'Speed',
-      intensity: 'Intensity',
-    },
-    fr: {
-      cardio: 'Cardio',
-      energy: 'Énergie',
-      endurance: 'Endurance',
-      strength: 'Force',
-      speed: 'Vitesse',
-      intensity: 'Intensité',
-    },
-  };
 
-  return translations[language][kind];
-};
+
 
 const Diagr = () => {
+  // stockage des données de l'utilisateur
   const [user, setUser] = useState(null);
   const [performance, setPerformance] = useState(null);
   const [averageSessions, setAverageSessions] = useState(null);
   const [activityData, setActivityData] = useState([]);
   const [error, setError] = useState(null);
 
+  // détermination de l'api
   const isProd = process.env.REACT_APP_ENVIRONNEMENT === 'prod';
 
+  // Récupération des données lors du chargement de la page
   useEffect(() => {
     const apiService = new ApiService();
 
@@ -52,6 +36,7 @@ const Diagr = () => {
         const userAverageSessions = await apiService.getUserAverageSessions();
         const userActivityData = await apiService.getUserActivity();
 
+        // Traitement des données de l'api
         if (isProd) {
           const kindMap = userPerformance.data.kind;
           const performanceData = userPerformance.data.data.map((item) => ({
@@ -62,16 +47,18 @@ const Diagr = () => {
           setPerformance(performanceData.reverse()); // Inverse l'ordre des données
           setAverageSessions(userAverageSessions.data.sessions);
           setActivityData(userActivityData.data); // Ajouté pour stocker les données d'activité
+          
+          // Traitement des données du mock
         } else {
           const kindMap = userPerformance.kind;
           const performanceData = userPerformance.data.map((item) => ({
             value: item.value,
-            kind: translateKind(kindMap[item.kind], 'fr'), // Change 'fr' to 'en' for English
+            kind: translateKind(kindMap[item.kind], 'fr'), 
           }));
           setUser(userData);
-          setPerformance(performanceData.reverse()); // Inverse l'ordre des données
+          setPerformance(performanceData.reverse()); 
           setAverageSessions(userAverageSessions);
-          setActivityData(userActivityData); // Ajouté pour stocker les données d'activité
+          setActivityData(userActivityData); 
         }
         setError(null);
       } catch (error) {
@@ -92,7 +79,9 @@ const Diagr = () => {
   const { calorieCount, proteinCount, carbohydrateCount, lipidCount } = user.keyData;
   const scorePercentage = (user.todayScore || user.score) * 100;
   const days = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+  // Création d'un tableau avec les données des sessions moyennes pour les jours de la semaine
   const sessionsData = averageSessions.map((session) => ({ ...session, day: days[session.day - 1] }));
+  // Création d'un tableau avec les données d'activité pour les jours de la semaine
   const activityDataWithDayNumbers = activityData.map((data, index) => ({ ...data, day: index + 1 }));
   
 

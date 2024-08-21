@@ -12,11 +12,9 @@ const App = () => {
   return (
     <div className="body">
       <Header/>
-
       <div className="content" >
         <Nav/>
         <Diagr/>
-
       </div>
 
     </div>
