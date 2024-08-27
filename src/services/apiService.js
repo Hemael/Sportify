@@ -21,13 +21,18 @@ class ApiService  {
 
 async getUserData() {
     if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
-      const response = await fetch(`${this.baseUrl}`);
+      try {
+        const response = await fetch(`${this.baseUrl}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch user data');
+          return {error : true}
         }
         const result = await response.json();
+        result.data.todayScore = result.data.score;
         return result.data;
-        
+      }
+      catch (error) {
+        return {error : true}
+      }
     }
     else{
       return this.mockUser;
@@ -36,13 +41,19 @@ async getUserData() {
 
   async getUserActivity() {
     if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
-      const url = `${this.baseUrl}/activity`;
+      try{
+        const url = `${this.baseUrl}/activity`;
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error('Failed to fetch user data activity');
+        return {error : true}
       }
       const result = await response.json();
       return result;
+      }
+      catch(error){
+        return {error : true}
+      }
+      
     }
     else{
       return this.mockUser.activity;
@@ -51,12 +62,18 @@ async getUserData() {
 
   async getUserAverageSessions() {
     if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
-      const response = await fetch(`${this.baseUrl}/average-sessions`);
+      try{
+        const response = await fetch(`${this.baseUrl}/average-sessions`);
         if (!response.ok) {
-          throw new Error('Failed to fetch user data Average sessions');
+          return {error : true}
         }
         const result = await response.json();
         return result;
+      }
+      catch(error){
+        return {error : true}
+      }
+      
     }
     else{
       return this.mockUser.averageSessions;
@@ -65,12 +82,19 @@ async getUserData() {
 
   async getUserPerformance() {
     if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
-      const response = await fetch(`${this.baseUrl}/performance`);
+      try{
+        const response = await fetch(`${this.baseUrl}/performance`);
         if (!response.ok) {
-          throw new Error('Failed to fetch user data performance');
+          return {error : true}
         }
         const result = await response.json();
         return result;
+      }
+      catch(error){
+        return {error : true}
+      }
+
+      
     }
     else{
       return this.mockUser.performance;

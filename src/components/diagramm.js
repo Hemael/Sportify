@@ -20,7 +20,23 @@ const Diagr = () => {
   const [performance, setPerformance] = useState(null);
   const [averageSessions, setAverageSessions] = useState(null);
   const [activityData, setActivityData] = useState([]);
-  const [error, setError] = useState(null);
+  const [calorieCount, setCalorieCount] = useState(0);
+  const [proteinCount, setProteinCount] = useState(0);
+  const [carbohydrateCount, setCarbohydrateCount] = useState(0);
+  const [lipidCount, setLipidCount] = useState(0);
+  const [scorePercentage, setScorePercentage] = useState(0);
+  const [sessionData, setSessionData] = useState([])
+  const [errors, setErrors] = useState({
+    user: false,
+    performance: false,
+    averageSessions: false,
+    activityData: false,
+  });
+
+  //const scorePercentage = (user.todayScore || user.score) * 100;
+  const days = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+  // Création d'un tableau avec les données des sessions moyennes pour les jours de la semaine
+  // Création d'un tableau avec les données d'activité pour les jours de la semaine
 
   // détermination de l'api
   const isProd = process.env.REACT_APP_ENVIRONNEMENT === 'prod';
@@ -35,7 +51,21 @@ const Diagr = () => {
         const userPerformance = await apiService.getUserPerformance();
         const userAverageSessions = await apiService.getUserAverageSessions();
         const userActivityData = await apiService.getUserActivity();
+        setScorePercentage(userData.todayScore * 100)
+        const errors_ = {};
+        if (userData.error){ errors_.user = true; }
+        if (userPerformance.error){ errors_.performance = true; }
+        if (userAverageSessions.error){ errors_.averageSessions = true; }
+        if (userActivityData.error){ errors_.activityData = true; }
+        if (userData.keyData){
+          setCalorieCount(userData.keyData.calorieCount);
+          setProteinCount(userData.keyData.proteinCount);
+          setCarbohydrateCount(userData.keyData.carbohydrateCount);
+          setLipidCount(userData.keyData.lipidCount);
+        }
 
+        
+        
         // Traitement des données de l'api
         if (isProd) {
           const kindMap = userPerformance.data.kind;
@@ -46,6 +76,7 @@ const Diagr = () => {
           setUser(userData);
           setPerformance(performanceData.reverse()); // Inverse l'ordre des données
           setAverageSessions(userAverageSessions.data.sessions);
+          setSessionData(userAverageSessions.data.sessions.map((session) => ({ ...session, day: days[session.day - 1] }))); 
           setActivityData(userActivityData.data); // Ajouté pour stocker les données d'activité
           
           // Traitement des données du mock
@@ -56,35 +87,25 @@ const Diagr = () => {
             kind: translateKind(kindMap[item.kind], 'fr'), 
           }));
           setUser(userData);
-          setPerformance(performanceData.reverse()); 
+          setPerformance(performanceData.reverse());
+          setSessionData(userAverageSessions.map((session) => ({ ...session, day: days[session.day - 1] }))); 
           setAverageSessions(userAverageSessions);
           setActivityData(userActivityData); 
         }
-        setError(null);
+        setErrors(errors_);
       } catch (error) {
-        setError(error.message);
+        console.error('Erreur lors de la récupération des données', error);
       }
     };
 
     fetchData();
   }, [isProd]);
 
-  if (error) {
-    return <div>Erreur : {error}</div>;
-  }
-  if (!user || !performance || !averageSessions || !activityData) {
+  if ((!user || !performance || !averageSessions || !activityData)&& (!errors.activityData && !errors.averageSessions && !errors.performance && !errors.user)) {
     return <div>Chargement...</div>;
   }
 
-  const { calorieCount, proteinCount, carbohydrateCount, lipidCount } = user.keyData;
-  const scorePercentage = (user.todayScore || user.score) * 100;
-  const days = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-  // Création d'un tableau avec les données des sessions moyennes pour les jours de la semaine
-  const sessionsData = averageSessions.map((session) => ({ ...session, day: days[session.day - 1] }));
-  // Création d'un tableau avec les données d'activité pour les jours de la semaine
-  const activityDataWithDayNumbers = activityData.map((data, index) => ({ ...data, day: index + 1 }));
   
-
 
   return (
     <div id="groupDia">
@@ -97,7 +118,11 @@ const Diagr = () => {
 
         <div className='diagrCenter'>
 
+
           <div className='actifLine'>
+            {errors.user ? <span className="">Impossible de charger les données</span> : 
+            <div>
+              <p className='score'>Votre score est de <span className="scoreNumber">{scorePercentage}%</span></p>
             <div className='textLine'>
               <p className='actiText'> Activité quotidienne</p>
               <div className='expli'>
@@ -106,7 +131,7 @@ const Diagr = () => {
               </div>
             </div>
 
-            <BarChart height={250} width={680} barGap={-15} data={activityDataWithDayNumbers} margin={{top: 40,right: 30,left: 0,bottom: -10,}}>
+            <BarChart height={250} width={680} barGap={-15} data={sessionData} margin={{top: 40,right: 30,left: 0,bottom: -10,}}>
             <Tooltip content={<LineTooltip />} fill='red' />
               <CartesianGrid horizontal={true} vertical={false} strokeDasharray="3 3" stroke="grey" />
               <XAxis dataKey="day" axisLine={false} tick={{ stroke: 'none', strokeDasharray: 'none' }}  tickLine={{ stroke: 'none' }}/> 
@@ -115,32 +140,39 @@ const Diagr = () => {
               <Bar yAxisId="left" dataKey="kilogram" fill="black" radius={[20, 20, 0, 0]} maxBarSize={10} />
               <Bar yAxisId="right" dataKey="calories" fill="#FF0101" radius={[20, 20, 0, 0]} maxBarSize={10} />
             </BarChart>
-
+            </div>
+            }
           </div>
 
           <div className='cubeDiagr'>
 
+            {errors.activityData ? <span className="">Impossible de charger les données</span> : 
             <div className='lineChart'>
-              <p className='timeSession'>Durée moyenne des <br/>sessions</p>
-              <LineChart className="lineSize" data={sessionsData} width={200} height={200}   margin={{ top: 20, right: 5, bottom: 10, left: -55 }}  >
-                <XAxis dataKey="day"tick={{fill: 'white', fontSize: 12.5, tickSize: 13}} tickLine={false} axisLine={false} tickMargin={15} />
-                <YAxis domain={[0, 80]} tick={false} axisLine={false} />
-                <Tooltip content={renderTooltip} cursor={<CustomCursor />} />
-                <Line type="monotone" dataKey="sessionLength" stroke="white" dot={false} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" activeDot={{ r: 4, fill: 'white', stroke: 'white', strokeOpacity: 0.5, strokeWidth: 5}} />
-              </LineChart>
+            <p className='timeSession'>Durée moyenne des <br/>sessions</p>
+            <LineChart className="lineSize" data={sessionData} width={200} height={200}   margin={{ top: 20, right: 5, bottom: 10, left: -55 }}  >
+              <XAxis dataKey="day"tick={{fill: 'white', fontSize: 12.5, tickSize: 13}} tickLine={false} axisLine={false} tickMargin={15} />
+              <YAxis domain={[0, 80]} tick={false} axisLine={false} />
+              <Tooltip content={renderTooltip} cursor={<CustomCursor />} />
+              <Line type="monotone" dataKey="sessionLength" stroke="white" dot={false} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" activeDot={{ r: 4, fill: 'white', stroke: 'white', strokeOpacity: 0.5, strokeWidth: 5}} />
+            </LineChart>
             </div>
+            }
 
-            <div className='diagrPerf'>
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart data={performance} cx="50%" cy="50%" outerRadius="60%">
-                  <PolarGrid gridType="polygon" radialLines={false} />
-                  <PolarAngleAxis dataKey="kind" tick={{ fill: 'white', fontSize: 10.5 }} tickSize={13} />
-                  <Radar name="Performance" dataKey="value" stroke="none" fill="#ff0101" fillOpacity={0.7} />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
+             {errors.activityData ? <span className="">Impossible de charger les données</span> : 
+             <div className='diagrPerf'>
+             <ResponsiveContainer width="100%" height="100%">
+               <RadarChart data={performance} cx="50%" cy="50%" outerRadius="60%">
+                 <PolarGrid gridType="polygon" radialLines={false} />
+                 <PolarAngleAxis dataKey="kind" tick={{ fill: 'white', fontSize: 10.5 }} tickSize={13} />
+                 <Radar name="Performance" dataKey="value" stroke="none" fill="#ff0101" fillOpacity={0.7} />
+               </RadarChart>
+             </ResponsiveContainer>
+           </div>
+             }
 
-            <div className='donutChart'>
+            
+            {errors.activityData ? <span className="">Impossible de charger les données</span> : 
+              <div className='donutChart'>
               <p className='scoreText'>Score</p>
               <PieChart width={180} height={180}>
                 <Pie
@@ -183,7 +215,9 @@ const Diagr = () => {
                   <Cell fill="#FBFBFB" />
                 </Pie>
               </PieChart>
-            </div>
+              </div>
+            }
+
 
           </div>
 
