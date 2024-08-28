@@ -78,7 +78,7 @@ const Diagr = () => {
           setAverageSessions(userAverageSessions.data.sessions);
           setSessionData(userAverageSessions.data.sessions.map((session) => ({ ...session, day: days[session.day - 1] }))); 
           setActivityData(userActivityData.data); // Ajouté pour stocker les données d'activité
-          
+
           // Traitement des données du mock
         } else {
           const kindMap = userPerformance.kind;
@@ -91,10 +91,12 @@ const Diagr = () => {
           setSessionData(userAverageSessions.map((session) => ({ ...session, day: days[session.day - 1] }))); 
           setAverageSessions(userAverageSessions);
           setActivityData(userActivityData); 
+          
         }
-        setErrors(errors_);
+        setErrors({}); // Réinitialiser les erreurs
       } catch (error) {
         console.error('Erreur lors de la récupération des données', error);
+        setErrors({ error: true }); // Définir l'état d'erreur
       }
     };
 
@@ -105,8 +107,10 @@ const Diagr = () => {
     return <div>Chargement...</div>;
   }
 
+  const activityDataWithDayNumbers = Array.isArray(activityData) ? activityData.map((data, index) => ({ ...data, day: index + 1 })) : activityData.sessions.map((data, index) => ({ ...data, day: index + 1 }));  
   
-
+  
+  
   return (
     <div id="groupDia">
       <div className='textPeople'>
@@ -120,9 +124,9 @@ const Diagr = () => {
 
 
           <div className='actifLine'>
-            {errors.user ? <span className="">Impossible de charger les données</span> : 
+            {errors.activityData ? <span className="">Impossible de charger les données</span> : 
             <div>
-              <p className='score'>Votre score est de <span className="scoreNumber">{scorePercentage}%</span></p>
+              
             <div className='textLine'>
               <p className='actiText'> Activité quotidienne</p>
               <div className='expli'>
@@ -131,11 +135,11 @@ const Diagr = () => {
               </div>
             </div>
 
-            <BarChart height={250} width={680} barGap={-15} data={sessionData} margin={{top: 40,right: 30,left: 0,bottom: -10,}}>
+            <BarChart height={250} width={680} barGap={-15} data={activityDataWithDayNumbers} margin={{top: 40,right: 30,left: 0,bottom: -10,}}>
             <Tooltip content={<LineTooltip />} fill='red' />
               <CartesianGrid horizontal={true} vertical={false} strokeDasharray="3 3" stroke="grey" />
               <XAxis dataKey="day" axisLine={false} tick={{ stroke: 'none', strokeDasharray: 'none' }}  tickLine={{ stroke: 'none' }}/> 
-              <YAxis yAxisId="left" orientation="right" stroke="none" ticks={[0,50,100]} />
+               <YAxis yAxisId="left" orientation="right" stroke="none" ticks={[0,50,100]} />
               <YAxis yAxisId="right" orientation="left" stroke="none" ticks={['']} />
               <Bar yAxisId="left" dataKey="kilogram" fill="black" radius={[20, 20, 0, 0]} maxBarSize={10} />
               <Bar yAxisId="right" dataKey="calories" fill="#FF0101" radius={[20, 20, 0, 0]} maxBarSize={10} />
@@ -146,7 +150,7 @@ const Diagr = () => {
 
           <div className='cubeDiagr'>
 
-            {errors.activityData ? <span className="">Impossible de charger les données</span> : 
+            {errors.averageSessions ? <span className="">Impossible de charger les données</span> : 
             <div className='lineChart'>
             <p className='timeSession'>Durée moyenne des <br/>sessions</p>
             <LineChart className="lineSize" data={sessionData} width={200} height={200}   margin={{ top: 20, right: 5, bottom: 10, left: -55 }}  >
@@ -158,7 +162,7 @@ const Diagr = () => {
             </div>
             }
 
-             {errors.activityData ? <span className="">Impossible de charger les données</span> : 
+             {errors.performance ? <span className="">Impossible de charger les données</span> : 
              <div className='diagrPerf'>
              <ResponsiveContainer width="100%" height="100%">
                <RadarChart data={performance} cx="50%" cy="50%" outerRadius="60%">
@@ -171,7 +175,7 @@ const Diagr = () => {
              }
 
             
-            {errors.activityData ? <span className="">Impossible de charger les données</span> : 
+            {errors.user ? <span className="">Impossible de charger les données</span> : 
               <div className='donutChart'>
               <p className='scoreText'>Score</p>
               <PieChart width={180} height={180}>
