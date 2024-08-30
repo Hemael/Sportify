@@ -68,15 +68,22 @@ const Diagr = () => {
         
         // Traitement des données de l'api
         if (isProd) {
-          const kindMap = userPerformance.data.kind;
-          const performanceData = userPerformance.data.data.map((item) => ({
-            value: item.value,
-            kind: translateKind(kindMap[item.kind], 'fr'), // Change 'fr' to 'en' for English
-          }));
-          setUser(userData);
-          setPerformance(performanceData.reverse()); // Inverse l'ordre des données
-          setAverageSessions(userAverageSessions.data.sessions);
-          setSessionData(userAverageSessions.data.sessions.map((session) => ({ ...session, day: days[session.day - 1] }))); 
+          if (!userPerformance.error) { 
+            const kindMap = userPerformance.data.kind;
+            const performanceData = userPerformance.data.data.map((item) => ({
+              value: item.value,
+              kind: translateKind(kindMap[item.kind], 'fr'), // Change 'fr' to 'en' for English
+            }));
+            setPerformance(performanceData.reverse()); // Inverse l'ordre des données
+          }
+          if (!userAverageSessions.error) {
+            setAverageSessions(userAverageSessions.data.sessions);
+            setSessionData(userAverageSessions.data.sessions.map((session) => ({ ...session, day: days[session.day - 1] }))); 
+          }
+          if (!userData.error){
+            setUser(userData);
+          }
+          
           setActivityData(userActivityData.data); // Ajouté pour stocker les données d'activité
 
           // Traitement des données du mock
@@ -103,20 +110,25 @@ const Diagr = () => {
     fetchData();
   }, [isProd]);
 
-  if ((!user || !performance || !averageSessions || !activityData)&& (!errors.activityData && !errors.averageSessions && !errors.performance && !errors.user)) {
+  const firstOccurence = !user && !performance && !averageSessions
+
+  if (firstOccurence) {
     return <div>Chargement...</div>;
   }
-
-  const activityDataWithDayNumbers = Array.isArray(activityData) ? activityData.map((data, index) => ({ ...data, day: index + 1 })) : activityData.sessions.map((data, index) => ({ ...data, day: index + 1 }));  
-  
+  var activityDataWithDayNumbers
+  if (activityData){
+    activityDataWithDayNumbers = Array.isArray(activityData) ? activityData.map((data, index) => ({ ...data, day: index + 1 })) : activityData.sessions.map((data, index) => ({ ...data, day: index + 1 }));  
+  }
   
   
   return (
     <div id="groupDia">
-      <div className='textPeople'>
-        <p className='Hello'>Bonjour <span className="firstName">{user.userInfos.firstName}</span></p>
-        <p>Félicitations ! Vous avez explosé vos objectifs hier 👏</p>
-      </div>
+      {!user ? <span className="">Impossible de charger les données</span> : 
+        <div className='textPeople'>
+          <p className='Hello'>Bonjour <span className="firstName">{user.userInfos.firstName}</span></p>
+          <p>Félicitations ! Vous avez explosé vos objectifs hier 👏</p>
+        </div>
+      }
 
       <div className='diagram'>
 
@@ -124,7 +136,7 @@ const Diagr = () => {
 
 
           <div className='actifLine'>
-            {errors.activityData ? <span className="">Impossible de charger les données</span> : 
+            {!activityData ? <span className="">Impossible de charger les données</span> : 
             <div>
               
             <div className='textLine'>
@@ -150,79 +162,81 @@ const Diagr = () => {
 
           <div className='cubeDiagr'>
 
-            {errors.averageSessions ? <span className="">Impossible de charger les données</span> : 
             <div className='lineChart'>
-            <p className='timeSession'>Durée moyenne des <br/>sessions</p>
-            <LineChart className="lineSize" data={sessionData} width={200} height={200}   margin={{ top: 20, right: 5, bottom: 10, left: -55 }}  >
-              <XAxis dataKey="day"tick={{fill: 'white', fontSize: 12.5, tickSize: 13}} tickLine={false} axisLine={false} tickMargin={15} />
-              <YAxis domain={[0, 80]} tick={false} axisLine={false} />
-              <Tooltip content={renderTooltip} cursor={<CustomCursor />} />
-              <Line type="monotone" dataKey="sessionLength" stroke="white" dot={false} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" activeDot={{ r: 4, fill: 'white', stroke: 'white', strokeOpacity: 0.5, strokeWidth: 5}} />
-            </LineChart>
-            </div>
-            }
-
-             {errors.performance ? <span className="">Impossible de charger les données</span> : 
-             <div className='diagrPerf'>
-             <ResponsiveContainer width="100%" height="100%">
-               <RadarChart data={performance} cx="50%" cy="50%" outerRadius="60%">
-                 <PolarGrid gridType="polygon" radialLines={false} />
-                 <PolarAngleAxis dataKey="kind" tick={{ fill: 'white', fontSize: 10.5 }} tickSize={13} />
-                 <Radar name="Performance" dataKey="value" stroke="none" fill="#ff0101" fillOpacity={0.7} />
-               </RadarChart>
-             </ResponsiveContainer>
-           </div>
-             }
-
-            
-            {errors.user ? <span className="">Impossible de charger les données</span> : 
-              <div className='donutChart'>
-              <p className='scoreText'>Score</p>
-              <PieChart width={180} height={180}>
-                <Pie
-                  data={[
-                    { name: 'Score', value: scorePercentage },
-                    { name: 'Remaining', value: 100 - scorePercentage }
-                  ]}
-                  startAngle={90} // Commence par le haut
-                  endAngle={450}
-                  innerRadius="70%"
-                  outerRadius="80%"
-                  dataKey="value"
-                  labelLine={false}
-                  stroke="none"
-                  cornerRadius={5}
-                >
-                  <Label
-                    value={`${scorePercentage}%`}
-                    fontSize={24}
-                    fontWeight="bold"
-                    className="textBlack"
-                    position="center"
-                    dy={-10}
-                  />
-                  <Label
-                    value="de votre"
-                    fontSize={16}
-                    className="textGrey"
-                    position="center"
-                    dy={10} // ajustez la valeur pour décaler le label vers le bas
-                  />
-                  <Label
-                    value="objectif"
-                    fontSize={16}
-                    className="textGrey"
-                    position="center"
-                    dy={30}
-                  />
-                  <Cell fill="#ff0101" />
-                  <Cell fill="#FBFBFB" />
-                </Pie>
-              </PieChart>
+              {!averageSessions ? <span className="">Impossible de charger les données</span> : 
+              <div>
+                <p className='timeSession'>Durée moyenne des <br/>sessions</p>
+              <LineChart className="lineSize" data={sessionData} width={200} height={200}   margin={{ top: 20, right: 5, bottom: 10, left: -55 }}  >
+                <XAxis dataKey="day"tick={{fill: 'white', fontSize: 12.5, tickSize: 13}} tickLine={false} axisLine={false} tickMargin={15} />
+                <YAxis domain={[0, 80]} tick={false} axisLine={false} />
+                <Tooltip content={renderTooltip} cursor={<CustomCursor />} />
+                <Line type="monotone" dataKey="sessionLength" stroke="white" dot={false} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" activeDot={{ r: 4, fill: 'white', stroke: 'white', strokeOpacity: 0.5, strokeWidth: 5}} />
+              </LineChart>
               </div>
-            }
+              }
+            </div>
 
-
+            {!performance ? <span className="perfError">Impossible de charger les données</span> : 
+              <div className='diagrPerf'>
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={performance} cx="50%" cy="50%" outerRadius="60%">
+                    <PolarGrid gridType="polygon" radialLines={false} />
+                    <PolarAngleAxis dataKey="kind" tick={{ fill: 'white', fontSize: 10.5 }} tickSize={13} />
+                    <Radar name="Performance" dataKey="value" stroke="none" fill="#ff0101" fillOpacity={0.7} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+            } 
+            
+            <div className='donutChart'>
+            {!user ? <span className="">Impossible de charger les données</span> : 
+              <div>
+            <p className='scoreText'>Score</p>
+            <PieChart width={180} height={180}>
+              <Pie
+                data={[
+                  { name: 'Score', value: scorePercentage },
+                  { name: 'Remaining', value: 100 - scorePercentage }
+                ]}
+                startAngle={90} // Commence par le haut
+                endAngle={450}
+                innerRadius="70%"
+                outerRadius="80%"
+                dataKey="value"
+                labelLine={false}
+                stroke="none"
+                cornerRadius={5}
+              >
+                <Label
+                  value={`${scorePercentage}%`}
+                  fontSize={24}
+                  fontWeight="bold"
+                  className="textBlack"
+                  position="center"
+                  dy={-10}
+                />
+                <Label
+                  value="de votre"
+                  fontSize={16}
+                  className="textGrey"
+                  position="center"
+                  dy={10} // ajustez la valeur pour décaler le label vers le bas
+                />
+                <Label
+                  value="objectif"
+                  fontSize={16}
+                  className="textGrey"
+                  position="center"
+                  dy={30}
+                />
+                <Cell fill="#ff0101" />
+                <Cell fill="#FBFBFB" />
+              </Pie>
+            </PieChart>
+            </div>
+              }
+            </div>
+            
           </div>
 
         </div>

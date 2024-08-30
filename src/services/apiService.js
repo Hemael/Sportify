@@ -19,9 +19,10 @@ class ApiService  {
  * @throws {Error} - Throws an error if the fetch operation fails.
  */
 
-async getUserData() {
+  async getUserData() {
     if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
       try {
+        //throw "ma Bite"
         const response = await fetch(`${this.baseUrl}`);
         if (!response.ok) {
           return {error : true}

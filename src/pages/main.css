@@ -352,3 +352,18 @@ body {
   flex-direction: column;
   width: 890px;
 }
+
+.perfError{
+  background-color: #282D30;
+  height: 200px;
+  width: 200px;
+  border-radius: 5px;
+  color: white;
+}
+
+span{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
