@@ -22,13 +22,16 @@ class ApiService  {
   async getUserData() {
     if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
       try {
-        //throw "ma Bite"
+        //throw "ma"
         const response = await fetch(`${this.baseUrl}`);
         if (!response.ok) {
           return {error : true}
         }
         const result = await response.json();
-        result.data.todayScore = result.data.score;
+        // If today's score is not present, set it to the total score.
+        if (result.data.score && !result.data.todayScore) {
+          result.data.todayScore = result.data.score;
+        }
         return result.data;
       }
       catch (error) {

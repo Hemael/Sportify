@@ -26,17 +26,10 @@ const Diagr = () => {
   const [lipidCount, setLipidCount] = useState(0);
   const [scorePercentage, setScorePercentage] = useState(0);
   const [sessionData, setSessionData] = useState([])
-  const [errors, setErrors] = useState({
-    user: false,
-    performance: false,
-    averageSessions: false,
-    activityData: false,
-  });
 
-  //const scorePercentage = (user.todayScore || user.score) * 100;
-  const days = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-  // Création d'un tableau avec les données des sessions moyennes pour les jours de la semaine
-  // Création d'un tableau avec les données d'activité pour les jours de la semaine
+
+
+
 
   // détermination de l'api
   const isProd = process.env.REACT_APP_ENVIRONNEMENT === 'prod';
@@ -44,6 +37,9 @@ const Diagr = () => {
   // Récupération des données lors du chargement de la page
   useEffect(() => {
     const apiService = new ApiService();
+
+      //const scorePercentage = (user.todayScore || user.score) * 100;
+    const days = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
     const fetchData = async () => {
       try {
@@ -100,10 +96,9 @@ const Diagr = () => {
           setActivityData(userActivityData); 
           
         }
-        setErrors({}); // Réinitialiser les erreurs
+      
       } catch (error) {
         console.error('Erreur lors de la récupération des données', error);
-        setErrors({ error: true }); // Définir l'état d'erreur
       }
     };
 

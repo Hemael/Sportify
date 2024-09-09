@@ -93,6 +93,7 @@ body {
 }
 .firstName{
     color: #FF0101;
+    display: contents;
 }
 
 .consoList {
@@ -367,3 +368,4 @@ span{
   justify-content: center;
   text-align: center;
 }
+
