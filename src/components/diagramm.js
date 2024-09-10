@@ -116,7 +116,7 @@ const Diagr = () => {
             <Tooltip content={<LineTooltip />} fill='red' />
               <CartesianGrid horizontal={true} vertical={false} strokeDasharray="3 3" stroke="grey" />
               <XAxis dataKey="day" axisLine={false} tick={{ stroke: 'none', strokeDasharray: 'none' }}  tickLine={{ stroke: 'none' }}/> 
-               <YAxis yAxisId="left" orientation="right" stroke="none" ticks={[minWeight, middleWeight,maxWeight]} />
+              <YAxis yAxisId="left" orientation="right" stroke="none" ticks={[minWeight, middleWeight, maxWeight]} domain={[minWeight + 0, maxWeight + 0]}/>
               <YAxis yAxisId="right" orientation="left" stroke="none" ticks={['']} />
               <Bar yAxisId="left" dataKey="kilogram" fill="black" radius={[20, 20, 0, 0]} maxBarSize={10} />
               <Bar yAxisId="right" dataKey="calories" fill="#FF0101" radius={[20, 20, 0, 0]} maxBarSize={10} />
