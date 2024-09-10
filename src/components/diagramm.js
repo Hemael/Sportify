@@ -26,6 +26,7 @@ const Diagr = () => {
   const [lipidCount, setLipidCount] = useState(0);
   const [scorePercentage, setScorePercentage] = useState(0);
   const [sessionData, setSessionData] = useState([])
+  const [error, setError] = useState(false);
 
 
 
@@ -78,6 +79,10 @@ const Diagr = () => {
           }
           if (!userData.error){
             setUser(userData);
+
+          }
+          if(userData.error && userAverageSessions.error){
+            setError(true)
           }
           
           setActivityData(userActivityData.data); // Ajouté pour stocker les données d'activité
@@ -97,8 +102,8 @@ const Diagr = () => {
           
         }
       
-      } catch (error) {
-        console.error('Erreur lors de la récupération des données', error);
+      } catch (err) {
+        console.error('Erreur lors de la récupération des données', err);
       }
     };
 
@@ -107,12 +112,28 @@ const Diagr = () => {
 
   const firstOccurence = !user && !performance && !averageSessions
 
+
   if (firstOccurence) {
     return <div>Chargement...</div>;
   }
-  var activityDataWithDayNumbers
+
+  if (error){
+    return <div>Erreur lors de la récupération des données</div>;
+  }
+
+
+
+
+
+
+  let activityDataWithDayNumbers, minWeight, maxWeight, middleWeight;
+
   if (activityData){
     activityDataWithDayNumbers = Array.isArray(activityData) ? activityData.map((data, index) => ({ ...data, day: index + 1 })) : activityData.sessions.map((data, index) => ({ ...data, day: index + 1 }));  
+    minWeight = Math.min(...activityDataWithDayNumbers.map(data => data.kilogram))-1;
+    maxWeight = Math.max(...activityDataWithDayNumbers.map(data => data.kilogram))+1;
+    middleWeight = Math.round((minWeight + maxWeight) / 2);
+
   }
   
   
@@ -146,7 +167,7 @@ const Diagr = () => {
             <Tooltip content={<LineTooltip />} fill='red' />
               <CartesianGrid horizontal={true} vertical={false} strokeDasharray="3 3" stroke="grey" />
               <XAxis dataKey="day" axisLine={false} tick={{ stroke: 'none', strokeDasharray: 'none' }}  tickLine={{ stroke: 'none' }}/> 
-               <YAxis yAxisId="left" orientation="right" stroke="none" ticks={[0,50,100]} />
+               <YAxis yAxisId="left" orientation="right" stroke="none" ticks={[minWeight, middleWeight,maxWeight]} />
               <YAxis yAxisId="right" orientation="left" stroke="none" ticks={['']} />
               <Bar yAxisId="left" dataKey="kilogram" fill="black" radius={[20, 20, 0, 0]} maxBarSize={10} />
               <Bar yAxisId="right" dataKey="calories" fill="#FF0101" radius={[20, 20, 0, 0]} maxBarSize={10} />

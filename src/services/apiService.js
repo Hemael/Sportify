@@ -35,6 +35,7 @@ class ApiService  {
         return result.data;
       }
       catch (error) {
+        console.error(error)
         return {error : true}
       }
     }
