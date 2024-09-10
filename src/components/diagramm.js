@@ -10,10 +10,6 @@ import apple from '../data/apple.svg';
 import cheesburger from '../data/cheeseburger.svg';
 import chicken from '../data/chicken.svg';
 
-
-
-
-
 const Diagr = () => {
   // stockage des données de l'utilisateur
   const [user, setUser] = useState(null);
@@ -28,18 +24,10 @@ const Diagr = () => {
   const [sessionData, setSessionData] = useState([])
   const [error, setError] = useState(false);
 
-
-
-
-
-  // détermination de l'api
   const isProd = process.env.REACT_APP_ENVIRONNEMENT === 'prod';
 
-  // Récupération des données lors du chargement de la page
   useEffect(() => {
     const apiService = new ApiService();
-
-      //const scorePercentage = (user.todayScore || user.score) * 100;
     const days = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
     const fetchData = async () => {
@@ -48,92 +36,53 @@ const Diagr = () => {
         const userPerformance = await apiService.getUserPerformance();
         const userAverageSessions = await apiService.getUserAverageSessions();
         const userActivityData = await apiService.getUserActivity();
-        setScorePercentage(userData.todayScore * 100)
-        const errors_ = {};
-        if (userData.error){ errors_.user = true; }
-        if (userPerformance.error){ errors_.performance = true; }
-        if (userAverageSessions.error){ errors_.averageSessions = true; }
-        if (userActivityData.error){ errors_.activityData = true; }
-        if (userData.keyData){
+        setScorePercentage(userData.todayScore * 100);
+
+        if (userData.error || userPerformance.error || userAverageSessions.error || userActivityData.error) {
+          setError(true);
+        } else {
+          setUser(userData);
+          const kindMap = userPerformance.data.kind;
+          const performanceData = userPerformance.data.data.map((item) => ({
+            value: item.value,
+            kind: translateKind(kindMap[item.kind], 'fr'),
+          }));
+          setPerformance(performanceData.reverse());
+          setAverageSessions(userAverageSessions.data.sessions);
+          setSessionData(userAverageSessions.data.sessions.map((session) => ({ ...session, day: days[session.day - 1] })));
+          setActivityData(userActivityData.data);
           setCalorieCount(userData.keyData.calorieCount);
           setProteinCount(userData.keyData.proteinCount);
           setCarbohydrateCount(userData.keyData.carbohydrateCount);
           setLipidCount(userData.keyData.lipidCount);
         }
-
-        
-        
-        // Traitement des données de l'api
-        if (isProd) {
-          if (!userPerformance.error) { 
-            const kindMap = userPerformance.data.kind;
-            const performanceData = userPerformance.data.data.map((item) => ({
-              value: item.value,
-              kind: translateKind(kindMap[item.kind], 'fr'), // Change 'fr' to 'en' for English
-            }));
-            setPerformance(performanceData.reverse()); // Inverse l'ordre des données
-          }
-          if (!userAverageSessions.error) {
-            setAverageSessions(userAverageSessions.data.sessions);
-            setSessionData(userAverageSessions.data.sessions.map((session) => ({ ...session, day: days[session.day - 1] }))); 
-          }
-          if (!userData.error){
-            setUser(userData);
-
-          }
-          if(userData.error && userAverageSessions.error){
-            setError(true)
-          }
-          
-          setActivityData(userActivityData.data); // Ajouté pour stocker les données d'activité
-
-          // Traitement des données du mock
-        } else {
-          const kindMap = userPerformance.kind;
-          const performanceData = userPerformance.data.map((item) => ({
-            value: item.value,
-            kind: translateKind(kindMap[item.kind], 'fr'), 
-          }));
-          setUser(userData);
-          setPerformance(performanceData.reverse());
-          setSessionData(userAverageSessions.map((session) => ({ ...session, day: days[session.day - 1] }))); 
-          setAverageSessions(userAverageSessions);
-          setActivityData(userActivityData); 
-          
-        }
-      
       } catch (err) {
         console.error('Erreur lors de la récupération des données', err);
+        setError(true); // Affiche un message d'erreur si une exception est levée
       }
     };
 
     fetchData();
   }, [isProd]);
 
-  const firstOccurence = !user && !performance && !averageSessions
+  const firstOccurence = !user && !performance && !averageSessions;
 
-
-  if (firstOccurence) {
+  if (firstOccurence && !error) {
     return <div>Chargement...</div>;
   }
 
-  if (error){
-    return <div>Erreur lors de la récupération des données</div>;
+  if (error) {
+    return <div>Veuillez réessayer ultérieurement, impossible de récupérer les données.</div>;
   }
 
-
-
-
-
-
+  // Rendu principal de ton composant (si pas d'erreur)
   let activityDataWithDayNumbers, minWeight, maxWeight, middleWeight;
 
-  if (activityData){
-    activityDataWithDayNumbers = Array.isArray(activityData) ? activityData.map((data, index) => ({ ...data, day: index + 1 })) : activityData.sessions.map((data, index) => ({ ...data, day: index + 1 }));  
-    minWeight = Math.min(...activityDataWithDayNumbers.map(data => data.kilogram))-1;
-    maxWeight = Math.max(...activityDataWithDayNumbers.map(data => data.kilogram))+1;
+  if (activityData) {
+    activityDataWithDayNumbers = Array.isArray(activityData) ? activityData.map((data, index) => ({ ...data, day: index + 1 })) : activityData.sessions.map((data, index) => ({ ...data, day: index + 1 }));
+    minWeight = Math.min(...activityDataWithDayNumbers.map(data => data.kilogram)) - 1;
+    maxWeight = Math.max(...activityDataWithDayNumbers.map(data => data.kilogram)) + 1;
     middleWeight = Math.round((minWeight + maxWeight) / 2);
-
   }
   
   
