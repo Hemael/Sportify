@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, PieChart, Pie, Cell, Label, LineChart, Line, XAxis, Tooltip, BarChart, Bar, CartesianGrid, YAxis} from 'recharts';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, PieChart, Pie, Cell, Label, LineChart, Line, XAxis, Tooltip, BarChart, Bar, CartesianGrid, YAxis } from 'recharts';
 import ApiService from '../services/apiService';
 import ConsoItem from '../components/consoItem';
 import { CustomCursor, LineTooltip, renderTooltip } from './customCursorTooltip';
-import translateKind from './translate'
+import translateKind from './translate';
 
 import energy from '../data/energy.svg';
 import apple from '../data/apple.svg';
@@ -16,12 +16,8 @@ const Diagr = () => {
   const [performance, setPerformance] = useState(null);
   const [averageSessions, setAverageSessions] = useState(null);
   const [activityData, setActivityData] = useState([]);
-  const [calorieCount, setCalorieCount] = useState(0);
-  const [proteinCount, setProteinCount] = useState(0);
-  const [carbohydrateCount, setCarbohydrateCount] = useState(0);
-  const [lipidCount, setLipidCount] = useState(0);
   const [scorePercentage, setScorePercentage] = useState(0);
-  const [sessionData, setSessionData] = useState([])
+  const [sessionData, setSessionData] = useState([]);
   const [error, setError] = useState(false);
 
   const isProd = process.env.REACT_APP_ENVIRONNEMENT === 'prod';
@@ -36,29 +32,32 @@ const Diagr = () => {
         const userPerformance = await apiService.getUserPerformance();
         const userAverageSessions = await apiService.getUserAverageSessions();
         const userActivityData = await apiService.getUserActivity();
+
         setScorePercentage(userData.todayScore * 100);
 
-        if (userData.error || userPerformance.error || userAverageSessions.error || userActivityData.error) {
+        if (!userData || !userPerformance || !userAverageSessions || !userActivityData) {
           setError(true);
         } else {
           setUser(userData);
-          const kindMap = userPerformance.data.kind;
-          const performanceData = userPerformance.data.data.map((item) => ({
+
+          const kindMap = userPerformance.kind;
+          const performanceData = userPerformance.data.map((item) => ({
             value: item.value,
             kind: translateKind(kindMap[item.kind], 'fr'),
           }));
+
           setPerformance(performanceData.reverse());
-          setAverageSessions(userAverageSessions.data.sessions);
-          setSessionData(userAverageSessions.data.sessions.map((session) => ({ ...session, day: days[session.day - 1] })));
-          setActivityData(userActivityData.data);
-          setCalorieCount(userData.keyData.calorieCount);
-          setProteinCount(userData.keyData.proteinCount);
-          setCarbohydrateCount(userData.keyData.carbohydrateCount);
-          setLipidCount(userData.keyData.lipidCount);
+          setAverageSessions(userAverageSessions.sessions);
+          setSessionData(userAverageSessions.sessions.map((session) => ({
+            ...session,
+            day: days[session.day - 1],
+          })));
+
+          setActivityData(userActivityData.sessions);
         }
       } catch (err) {
         console.error('Erreur lors de la récupération des données', err);
-        setError(true); // Affiche un message d'erreur si une exception est levée
+        setError(true);
       }
     };
 
@@ -75,22 +74,23 @@ const Diagr = () => {
     return <div>Veuillez réessayer ultérieurement, impossible de récupérer les données.</div>;
   }
 
-  // Rendu principal de ton composant (si pas d'erreur)
   let activityDataWithDayNumbers, minWeight, maxWeight, middleWeight;
 
   if (activityData) {
-    activityDataWithDayNumbers = Array.isArray(activityData) ? activityData.map((data, index) => ({ ...data, day: index + 1 })) : activityData.sessions.map((data, index) => ({ ...data, day: index + 1 }));
-    minWeight = Math.min(...activityDataWithDayNumbers.map(data => data.kilogram)) - 1;
-    maxWeight = Math.max(...activityDataWithDayNumbers.map(data => data.kilogram)) + 1;
+    activityDataWithDayNumbers = Array.isArray(activityData)
+      ? activityData.map((data, index) => ({ ...data, day: index + 1 }))
+      : activityData.sessions.map((data, index) => ({ ...data, day: index + 1 }));
+
+    minWeight = Math.min(...activityDataWithDayNumbers.map((data) => data.kilogram)) - 1;
+    maxWeight = Math.max(...activityDataWithDayNumbers.map((data) => data.kilogram)) + 1;
     middleWeight = Math.round((minWeight + maxWeight) / 2);
   }
-  
-  
+
   return (
     <div id="groupDia">
-      {!user ? <span className="">Impossible de charger les données</span> : 
+      {!user ? <span>Impossible de charger les données</span> : 
         <div className='textPeople'>
-          <p className='Hello'>Bonjour <span className="firstName">{user.userInfos.firstName}</span></p>
+          <p className='Hello'>Bonjour <span className="firstName">{user.firstName}</span></p>
           <p>Félicitations ! Vous avez explosé vos objectifs hier 👏</p>
         </div>
       }
@@ -98,8 +98,6 @@ const Diagr = () => {
       <div className='diagram'>
 
         <div className='diagrCenter'>
-
-
           <div className='actifLine'>
             {!activityData ? <span className="">Impossible de charger les données</span> : 
             <div>
@@ -207,10 +205,10 @@ const Diagr = () => {
         </div>
 
         <div className='consoList'>
-          <ConsoItem image={energy} value={`${calorieCount}kCal`} label="Calories" className="boiteImgCalo" />
-          <ConsoItem image={chicken} value={`${proteinCount}g`} label="Protéines" className="boiteImgPro" />
-          <ConsoItem image={apple} value={`${carbohydrateCount}g`} label="Glucides" className="boiteImgGlu" />
-          <ConsoItem image={cheesburger} value={`${lipidCount}g`} label="Lipides" className="boiteImgLip" />
+          <ConsoItem image={energy} value={`${user.calorieCount}kCal`} label="Calories" className="boiteImgCalo" />
+          <ConsoItem image={chicken} value={`${user.proteinCount}g`} label="Protéines" className="boiteImgPro" />
+          <ConsoItem image={apple} value={`${user.carbohydrateCount}g`} label="Glucides" className="boiteImgGlu" />
+          <ConsoItem image={cheesburger} value={`${user.lipidCount}g`} label="Lipides" className="boiteImgLip" />
         </div>
         
       </div>

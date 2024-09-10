@@ -1,112 +1,87 @@
-import mockData from "./mockData.json"
+import mockData from "./mockData.json";
+import { User, Activity, AverageSession, Performance } from './models';
 
-class ApiService  {
-  getMockUser(){
-    return mockData.users.find(user => parseInt(user.id )=== parseInt(process.env.REACT_APP_USER_ID))
-  }
-
+class ApiService {
   constructor() {
-    this.baseUrl = `${process.env.REACT_APP_API_URL_DEV}user/${process.env.REACT_APP_USER_ID}`
-    this.mockUser = this.getMockUser()
+    this.baseUrl = `${process.env.REACT_APP_API_URL_DEV}user/${process.env.REACT_APP_USER_ID}`;
+    this.mockUser = this.getMockUser();
   }
-  
-  /**
- * Fetches user data based on the environment and user ID.
- * If the environment is 'prod', it fetches data from the API.
- * If the environment is not 'prod', it returns mock data.
- *
- * @returns {Object} - The user data object.
- * @throws {Error} - Throws an error if the fetch operation fails.
- */
+
+  getMockUser() {
+    return mockData.users.find(user => parseInt(user.id) === parseInt(process.env.REACT_APP_USER_ID));
+  }
+
+  async fetchFromApi(endpoint) {
+    try {
+      const response = await fetch(`${this.baseUrl}${endpoint}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error(error);
+      return { error: true };
+    }
+  }
+
+  // Méthode générique pour gérer prod/mock
+  async fetchDataOrMock(fetchFn, mockData) {
+    if (process.env.REACT_APP_ENVIRONNEMENT === "prod") {
+      const result = await fetchFn();
+      if (result.error) {
+        return null; 
+      }
+      return result;
+    }
+    return mockData;
+  }
+
 
   async getUserData() {
-    if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
-      try {
-        //throw "ma"
-        const response = await fetch(`${this.baseUrl}`);
-        if (!response.ok) {
-          return {error : true}
-        }
-        const result = await response.json();
-        // If today's score is not present, set it to the total score.
+    return this.fetchDataOrMock(
+      async () => {
+        const result = await this.fetchFromApi("");
         if (result.data.score && !result.data.todayScore) {
           result.data.todayScore = result.data.score;
         }
-        return result.data;
-      }
-      catch (error) {
-        console.error(error)
-        return {error : true}
-      }
-    }
-    else{
-      return this.mockUser;
-    }
+        return new User(result.data.id, result.data.userInfos, result.data.todayScore, result.data.keyData);
+      },
+      new User(this.mockUser.id, this.mockUser.userInfos, this.mockUser.todayScore, this.mockUser.keyData)
+    );
   }
+
 
   async getUserActivity() {
-    if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
-      try{
-        const url = `${this.baseUrl}/activity`;
-      const response = await fetch(url);
-      if (!response.ok) {
-        return {error : true}
-      }
-      const result = await response.json();
-      return result;
-      
-      }
-      catch(error){
-        return {error : true}
-      }
-      
-    }
-    else{
-      return this.mockUser.activity;
-    }
+    return this.fetchDataOrMock(
+      async () => {
+        const result = await this.fetchFromApi("/activity");
+        return new Activity(result.data.userId, result.data.sessions);
+      },
+      new Activity(this.mockUser.id, this.mockUser.activity)
+    );
   }
 
+ 
   async getUserAverageSessions() {
-    if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
-      try{
-        const response = await fetch(`${this.baseUrl}/average-sessions`);
-        if (!response.ok) {
-          return {error : true}
-        }
-        const result = await response.json();
-        return result;
-      }
-      catch(error){
-        return {error : true}
-      }
-      
-    }
-    else{
-      return this.mockUser.averageSessions;
-    }
+    return this.fetchDataOrMock(
+      async () => {
+        const result = await this.fetchFromApi("/average-sessions");
+        return new AverageSession(result.data.userId, result.data.sessions);
+      },
+      new AverageSession(this.mockUser.id, this.mockUser.averageSessions)
+    );
   }
+
 
   async getUserPerformance() {
-    if (process.env.REACT_APP_ENVIRONNEMENT === "prod"){
-      try{
-        const response = await fetch(`${this.baseUrl}/performance`);
-        if (!response.ok) {
-          return {error : true}
-        }
-        const result = await response.json();
-        return result;
-      }
-      catch(error){
-        return {error : true}
-      }
-
-      
-    }
-    else{
-      return this.mockUser.performance;
-    }
+    return this.fetchDataOrMock(
+      async () => {
+        const result = await this.fetchFromApi("/performance");
+        return new Performance(result.data.userId, result.data.kind, result.data.data);
+      },
+      new Performance(this.mockUser.id, this.mockUser.performance.kind, this.mockUser.performance.data)
+    );
   }
-
-};
+}
 
 export default ApiService;
